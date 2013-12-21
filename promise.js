@@ -17,46 +17,7 @@ exports.Promise = (function () {
             return (typeof x === 'function');
         },
 
-        async = function (observer, state, value) {
-            var promise      = observer.promise,
-                isFulfilled  = state === STATE.FULFILLED,
-                callbackName = (isFulfilled ? 'onFulfilled' : 'onRejected'),
-                callback     = observer[callbackName];
-
-            setTimeout(function () {
-                if (typeof callback === 'function') {
-                    try {
-                        value = callback(value);
-
-                        if (value === promise) {
-                            throw new TypeError('Return value cannot refer to the same promise!');
-                        }
-
-                        if (isObject(value) || isFunction(value)) {
-                            var then = value.then;
-
-                            if (isFunction(then)) {
-                                value.then.call(value, this.resolve.bind(this), this.reject.bind(this));
-                            } else {
-                                promise.resolve(value);
-                            }
-                        } else {
-                            promise.resolve(value);
-                        }
-                    } catch (error) {
-                        promise.reject(error);
-                    }
-                } else {
-                    if (isFulfilled) {
-                        promise.resolve(value);
-                    } else {
-                        promise.reject(value);
-                    }
-                }
-            }, 0);
-        },
-
-        Promise = function () {
+        Promise = function (callback) {
             var state = STATE.PENDING,
                 value = null;
 
@@ -80,18 +41,65 @@ exports.Promise = (function () {
             this.getValue = function () {
                 return value;
             };
+
+            if (isFunction(callback)) {
+                handle(callback, this.resolve.bind(this), this.reject.bind(this));
+            }
         };
 
-    Promise.prototype.resolve = function (value) {
-        if (this.setState(STATE.FULFILLED, value)) {
-            this.notify();
+    var handle = function (callback, resolve, reject) {
+        var done = false;
+
+        try {
+            callback(function (value) {
+                if (done === false) {
+                    done = true;
+                    resolve(value);
+                }
+            }, function (reason) {
+                if (done === false) {
+                    done = true;
+                    reject(reason);
+                }
+            });
+        } catch (error) {
+            if (done === false) {
+                reject(error);
+            }
         }
+    };
+
+    Promise.prototype.resolve = function (value) {
+        try {
+            if (value === this) {
+                throw new TypeError('Return value cannot refer to the same promise!');
+            }
+
+            if (isObject(value) || isFunction(value)) {
+                var then = value.then;
+
+                if (isFunction(then)) {
+                    handle(then.bind(value), this.resolve.bind(this), this.reject.bind(this));
+                    return this;
+                }
+            }
+
+            if (this.setState(STATE.FULFILLED, value)) {
+                this.notify();
+            }
+        } catch (error) {
+            this.reject(error);
+        }
+
+        return this;
     };
 
     Promise.prototype.reject = function (reason) {
         if (this.setState(STATE.REJECTED, reason)) {
             this.notify();
         }
+
+        return this;
     };
 
     Promise.prototype.notify = function () {
@@ -103,6 +111,30 @@ exports.Promise = (function () {
             observer = this.observers.shift();
             async(observer, state, value);
         }
+    };
+
+    var async = function (observer, state, value) {
+        var promise      = observer.promise,
+            isFulfilled  = state === STATE.FULFILLED,
+            callbackName = (isFulfilled ? 'onFulfilled' : 'onRejected'),
+            callback     = observer[callbackName];
+
+        setTimeout(function () {
+            try {
+                if (typeof callback === 'function') {
+                    value = callback(value);
+                    promise.resolve(value);
+                } else {
+                    if (isFulfilled) {
+                        promise.resolve(value);
+                    } else {
+                        promise.reject(value);
+                    }
+                }
+            } catch (error) {
+                promise.reject(error);
+            }
+        }, 0);
     };
 
     Promise.prototype.then = function (onFulfilled, onRejected) {
