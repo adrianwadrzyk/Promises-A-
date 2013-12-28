@@ -69,6 +69,72 @@ exports.Promise = (function () {
         }
     };
 
+    Promise.cast = function (obj) {
+        if (isObject(obj) && obj instanceof Promise) {
+            return obj;
+        }
+
+        return new Promise().resolve(obj);
+    };
+
+    Promise.resolve = function (value) {
+        return new Promise().resolve(value);
+    };
+
+    Promise.reject = function (reason) {
+        return new Promise().reject(reason);
+    };
+
+    Promise.all = function (items) {
+        return new Promise(function (resolve, reject) {
+            var remaining = items.length,
+                results = [],
+
+                onFulfilled = function (index) {
+                    return function (value) {
+                        results[index] = value;
+
+                        if (--remaining === 0) {
+                            resolve(results);
+                        }
+                    };
+                },
+
+                onRejected = function (reason) {
+                    remaining = 0;
+                    reject(reason);
+                };
+
+            for (var i = 0; i < items.length; i++) {
+                items[i].then(onFulfilled(i), onRejected);
+            }
+        });
+    };
+
+    Promise.race = function (items) {
+        return new Promise(function (resolve, reject) {
+            var pending = true,
+
+                onFulfilled = function (value) {
+                    if (pending) {
+                        pending = false;
+                        resolve(value);
+                    }
+                },
+
+                onRejected = function (reason) {
+                    if (pending) {
+                        pending = false;
+                        reject(reason);
+                    }
+                };
+
+            for (var i = 0; i < items.length; i++) {
+                items[i].then(onFulfilled, onRejected);
+            }
+        });
+    };
+
     Promise.prototype.resolve = function (value) {
         try {
             if (value === this) {
@@ -151,6 +217,10 @@ exports.Promise = (function () {
         }
 
         return promise;
+    };
+
+    Promise.prototype.catch = function (onRejected) {
+        return this.then(undefined, onRejected);
     };
 
     return Promise;
