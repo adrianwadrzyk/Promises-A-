@@ -17,20 +17,20 @@ exports.Promise = (function () {
             return (typeof x === 'function');
         },
 
-        Promise = function (callback) {
-            var state = STATE.PENDING,
-                value = null;
+        Promise = function (resolver) {
+            var state  = STATE.PENDING,
+                result = null;
 
-            this.observers = [];
+            this.reactions = [];
 
             this.getState = function () {
                 return state;
             };
 
-            this.setState = function (newState, newValue) {
+            this.setState = function (newState, value) {
                 if (state === STATE.PENDING) {
-                    state = newState;
-                    value = newValue;
+                    state  = newState;
+                    result = value;
 
                     return true;
                 }
@@ -38,20 +38,20 @@ exports.Promise = (function () {
                 return false;
             };
 
-            this.getValue = function () {
-                return value;
+            this.getResult = function () {
+                return result;
             };
 
-            if (isFunction(callback)) {
-                handle(callback, this.resolve.bind(this), this.reject.bind(this));
+            if (isFunction(resolver)) {
+                handle(resolver, this.resolve.bind(this), this.reject.bind(this));
             }
         };
 
-    var handle = function (callback, resolve, reject) {
+    var handle = function (resolver, resolve, reject) {
         var done = false;
 
         try {
-            callback(function (value) {
+            resolver(function (value) {
                 if (done === false) {
                     done = true;
                     resolve(value);
@@ -169,26 +169,26 @@ exports.Promise = (function () {
     };
 
     Promise.prototype.notify = function () {
-        var value = this.getValue(),
+        var value = this.getResult(),
             state = this.getState(),
-            observer;
+            reaction;
 
-        while (this.observers.length) {
-            observer = this.observers.shift();
-            async(observer, state, value);
+        while (this.reactions.length) {
+            reaction = this.reactions.shift();
+            async(reaction, state, value);
         }
     };
 
-    var async = function (observer, state, value) {
-        var promise      = observer.promise,
-            isFulfilled  = state === STATE.FULFILLED,
-            callbackName = (isFulfilled ? 'onFulfilled' : 'onRejected'),
-            callback     = observer[callbackName];
+    var async = function (reaction, state, value) {
+        var promise     = reaction.promise,
+            isFulfilled = state === STATE.FULFILLED,
+            handlerName = (isFulfilled ? 'onFulfilled' : 'onRejected'),
+            handler     = reaction[handlerName];
 
         setTimeout(function () {
             try {
-                if (typeof callback === 'function') {
-                    value = callback(value);
+                if (typeof handler === 'function') {
+                    value = handler(value);
                     promise.resolve(value);
                 } else {
                     if (isFulfilled) {
@@ -206,7 +206,7 @@ exports.Promise = (function () {
     Promise.prototype.then = function (onFulfilled, onRejected) {
         var promise = new Promise();
 
-        this.observers.push({
+        this.reactions.push({
             'promise'    : promise,
             'onFulfilled': onFulfilled,
             'onRejected' : onRejected
