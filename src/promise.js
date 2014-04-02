@@ -1,6 +1,6 @@
-/* global exports, setTimeout */
+/* global module, setTimeout */
 
-exports.Promise = (function () {
+(function () {
     "use strict";
 
     var STATE = {
@@ -223,5 +223,5 @@ exports.Promise = (function () {
         return this.then(undefined, onRejected);
     };
 
-    return Promise;
+    module.exports = Promise;
 }());

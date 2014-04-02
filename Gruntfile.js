@@ -5,7 +5,7 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         jshint: {
-            src: ["promise.js"],
+            src: ["src/promise.js"],
             options: {
                 reporter: require("jshint-stylish")
             }
@@ -21,13 +21,25 @@ module.exports = function (grunt) {
         watch: {
             files: ["<%= jshint.src %>"],
             tasks: ["jshint", "mochaTest"]
+        },
+
+        uglify: {
+            dist: {
+                src: ["<%= jshint.src %>"],
+                dest: 'dist/promise.min.js'
+            },
+            options: {
+                sourceMap: true
+            }
         }
     });
 
     grunt.loadNpmTasks("grunt-contrib-jshint");
     grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks("grunt-contrib-watch");
+    grunt.loadNpmTasks("grunt-contrib-uglify");
 
-    grunt.registerTask("default", ["watch"]);
+    grunt.registerTask("default", ["test", "build"]);
     grunt.registerTask("test", ["mochaTest"]);
+    grunt.registerTask("build", ["uglify"]);
 };

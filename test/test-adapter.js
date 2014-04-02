@@ -1,6 +1,6 @@
 /*global require, exports*/
 
-var Promise = require('../promise').Promise;
+var Promise = require('../src/promise');
 
 exports.deferred = function () {
     "use strict";
