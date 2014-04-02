@@ -1,7 +1,7 @@
-/*global exports, setTimeout*/
+/* global exports, setTimeout */
 
 exports.Promise = (function () {
-    'use strict';
+    "use strict";
 
     var STATE = {
             'PENDING'  : 0,

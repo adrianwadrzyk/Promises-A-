@@ -1,0 +1,18 @@
+{
+    "name": "Promises-Aplus",
+    "description": "My implementation of Promises/A+",
+    "version": "0.1.0",
+    "author": "Adrian Wądrzyk <adrian.wadrzyk@gmail.com>",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/adrianwadrzyk/Promises-Aplus"
+    },
+    "devDependencies": {
+        "grunt": "^0.4.4",
+        "grunt-contrib-jshint": "^0.10.0",
+        "jshint-stylish": "^0.1.5",
+        "grunt-contrib-watch": "^0.6.1",
+        "promises-aplus-tests": "^2.0.4",
+        "grunt-mocha-test": "^0.10.0"
+    }
+}

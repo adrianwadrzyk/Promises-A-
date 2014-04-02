@@ -1,4 +1,4 @@
-Promises/A+
+Promises/A+ [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
 ===========
 
 My implementation of Promises/A+.
