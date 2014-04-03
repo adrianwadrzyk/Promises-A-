@@ -1,5 +1,7 @@
-Promises/A+ [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
+Promises/A+
 ===========
+[![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
+[![Build Status](https://travis-ci.org/adrianwadrzyk/Promises-Aplus.svg?branch=master)](https://travis-ci.org/adrianwadrzyk/Promises-Aplus)
 
 My implementation of Promises/A+.
 
