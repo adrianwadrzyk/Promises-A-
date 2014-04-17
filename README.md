@@ -1,12 +1,12 @@
-Promises/A+
-===========
+##Promises/A+
 [![Built with Grunt](https://cdn.gruntjs.com/builtwith.png)](http://gruntjs.com/)
 [![Build Status](https://travis-ci.org/adrianwadrzyk/Promises-Aplus.svg?branch=master)](https://travis-ci.org/adrianwadrzyk/Promises-Aplus)
 
-My implementation of Promises/A+.
+###Spec
 
-Spec: http://promises-aplus.github.io/promises-spec/
+http://promises-aplus.github.io/promises-spec/
+http://dom.spec.whatwg.org/#futures
 
-Test: https://github.com/promises-aplus/promises-tests
+###Tests
 
-DOM Spec: http://dom.spec.whatwg.org/#futures
+https://github.com/promises-aplus/promises-tests

@@ -1,5 +1,13 @@
 /* global module, setTimeout */
 
+/**!
+ * Promise A+
+ *
+ * @version 1.0.0
+ * @link https://github.com/adrianwadrzyk/Promises-Aplus
+ * @author Adrian Wądrzyk
+ * @license MIT License
+ */
 (function (global) {
     "use strict";
 
@@ -15,37 +23,44 @@
 
         isFunction = function (x) {
             return (typeof x === 'function');
-        },
-
-        Promise = function (resolver) {
-            var state  = STATE.PENDING,
-                result = null;
-
-            this.reactions = [];
-
-            this.getState = function () {
-                return state;
-            };
-
-            this.setState = function (newState, value) {
-                if (state === STATE.PENDING) {
-                    state  = newState;
-                    result = value;
-
-                    return true;
-                }
-
-                return false;
-            };
-
-            this.getResult = function () {
-                return result;
-            };
-
-            if (isFunction(resolver)) {
-                handle(resolver, this.resolve.bind(this), this.reject.bind(this));
-            }
         };
+
+    /**
+     * Promise A+
+     *
+     * @class Promise
+     * @param {Function} resolver
+     * @constructor
+     */
+    var Promise = function (resolver) {
+        var state  = STATE.PENDING,
+            result = null;
+
+        this.reactions = [];
+
+        this.getState = function () {
+            return state;
+        };
+
+        this.setState = function (newState, value) {
+            if (state === STATE.PENDING) {
+                state  = newState;
+                result = value;
+
+                return true;
+            }
+
+            return false;
+        };
+
+        this.getResult = function () {
+            return result;
+        };
+
+        if (isFunction(resolver)) {
+            handle(resolver, this.resolve.bind(this), this.reject.bind(this));
+        }
+    };
 
     var handle = function (resolver, resolve, reject) {
         var done = false;
@@ -69,6 +84,12 @@
         }
     };
 
+    /**
+     * @method cast
+     * @static
+     * @param {Object} obj
+     * @return {Promise}
+     */
     Promise.cast = function (obj) {
         if (isObject(obj) && obj instanceof Promise) {
             return obj;
@@ -77,14 +98,32 @@
         return new Promise().resolve(obj);
     };
 
+    /**
+     * @method resolve
+     * @static
+     * @param {Object} value
+     * @return {Promise}
+     */
     Promise.resolve = function (value) {
         return new Promise().resolve(value);
     };
 
+    /**
+     * @method reject
+     * @static
+     * @param {Object} reason
+     * @return {Promise}
+     */
     Promise.reject = function (reason) {
         return new Promise().reject(reason);
     };
 
+    /**
+     * @method all
+     * @static
+     * @param {Promise} items*
+     * @return {Promise}
+     */
     Promise.all = function (items) {
         return new Promise(function (resolve, reject) {
             var remaining = items.length,
@@ -111,6 +150,12 @@
         });
     };
 
+    /**
+     * @method race
+     * @static
+     * @param {Promise} items*
+     * @return {Promise}
+     */
     Promise.race = function (items) {
         return new Promise(function (resolve, reject) {
             var pending = true,
@@ -135,6 +180,11 @@
         });
     };
 
+    /**
+     * @method resolve
+     * @param {Object} value
+     * @chainable
+     */
     Promise.prototype.resolve = function (value) {
         try {
             if (value === this) {
@@ -160,6 +210,11 @@
         return this;
     };
 
+    /**
+     * @method reject
+     * @param {Object} reason
+     * @chainable
+     */
     Promise.prototype.reject = function (reason) {
         if (this.setState(STATE.REJECTED, reason)) {
             this.notify();
@@ -168,6 +223,9 @@
         return this;
     };
 
+    /**
+     * @method notify
+     */
     Promise.prototype.notify = function () {
         var value = this.getResult(),
             state = this.getState(),
@@ -203,6 +261,12 @@
         }, 0);
     };
 
+    /**
+     * @method then
+     * @param {Function} onFulfilled
+     * @param {Function} onRejected
+     * @return {Promise}
+     */
     Promise.prototype.then = function (onFulfilled, onRejected) {
         var promise = new Promise();
 
@@ -219,6 +283,11 @@
         return promise;
     };
 
+    /**
+     * @method catch
+     * @param {Function} onRejected
+     * @return {Promise}
+     */
     Promise.prototype.catch = function (onRejected) {
         return this.then(undefined, onRejected);
     };

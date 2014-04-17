@@ -29,7 +29,8 @@ module.exports = function (grunt) {
                 dest: 'dist/promise.min.js'
             },
             options: {
-                sourceMap: true
+                sourceMap: true,
+                preserveComments: "some"
             }
         }
     });
